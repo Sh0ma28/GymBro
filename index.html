@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f5fb">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>GymBro — журнал тренировок</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="import.css">
+  <script src="import.js" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="frame header-inner">
+      <div class="brand" aria-label="GymBro, журнал тренировок">
+        <span class="brand-mark"><i class="icon pulse" aria-hidden="true"></i></span>
+        <span><strong>GymBro<span class="brand-dot">.</span></strong><small>Журнал тренировок</small></span>
+      </div>
+      <button type="button" class="text-button" id="today">Сегодня</button>
+    </div>
+  </header>
+
+  <main class="frame">
+    <section id="journal" aria-labelledby="journal-title">
+      <div class="screen-heading"><h1 id="journal-title">Календарь</h1></div>
+      <section class="card calendar" aria-label="Календарь тренировок">
+        <div class="calendar-toolbar">
+          <h2 id="month-title"></h2>
+          <div class="month-controls">
+            <button type="button" class="icon-button" id="month-prev" aria-label="Предыдущий месяц"><i class="icon chevron left" aria-hidden="true"></i></button>
+            <button type="button" class="icon-button" id="month-next" aria-label="Следующий месяц"><i class="icon chevron right" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <div class="weekdays" aria-hidden="true"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+        <div class="calendar-grid" id="calendar-days"></div>
+        <p class="calendar-key"><span></span> Есть тренировка</p>
+      </section>
+      <section class="day-section" aria-labelledby="day-title">
+        <div class="section-heading"><h2 id="day-title"></h2><span class="count" id="day-count"></span></div>
+        <div id="day-entries" class="entry-list"></div>
+        <button type="button" class="primary wide" id="add-entry"><i class="icon plus" aria-hidden="true"></i> Добавить запись</button>
+        <section class="card muscle-totals" id="muscle-totals" aria-labelledby="muscle-totals-title" hidden>
+          <h3 id="muscle-totals-title">Итоги по группам мышц</h3>
+          <table aria-labelledby="muscle-totals-title">
+            <thead><tr><th scope="col">Группа мышц</th><th scope="col">Подходы</th><th scope="col">Повторения</th></tr></thead>
+            <tbody id="muscle-total-rows"></tbody>
+          </table>
+        </section>
+      </section>
+    </section>
+
+    <section id="catalog" aria-labelledby="catalog-title" hidden>
+      <div class="screen-heading">
+        <div class="catalog-heading">
+          <h1 id="catalog-title">Упражнения</h1>
+          <button type="button" class="text-button" id="manage-groups">Группы мышц</button>
+        </div>
+        <p>Откройте упражнение, чтобы посмотреть его статистику.</p>
+      </div>
+      <div id="exercise-list" class="entry-list"></div>
+      <button type="button" class="primary wide" id="add-exercise"><i class="icon plus" aria-hidden="true"></i> Создать упражнение</button>
+    </section>
+
+    <section id="export" aria-labelledby="export-title" hidden>
+      <div class="screen-heading"><h1 id="export-title">Обмен CSV</h1><p>Сохраните тренировки за выбранный период в таблицу.</p></div>
+      <form id="export-form" class="card export-card">
+        <h2>Период выгрузки</h2>
+        <div class="fields date-fields">
+          <label>Начало<input name="from" type="date" required></label>
+          <label>Конец<input name="to" type="date" required></label>
+        </div>
+        <p id="export-summary" class="export-summary" aria-live="polite"></p>
+        <button type="submit" class="primary wide" id="export-button"><i class="icon download" aria-hidden="true"></i> Сохранить CSV</button>
+      </form>
+      <p class="export-help">Файл CSV можно открыть в Excel или Google Таблицах.</p>
+      <section class="card import-card" aria-labelledby="import-title">
+        <h2 id="import-title">Импорт тренировок</h2>
+        <p>Выберите CSV, выгруженный из GymBro или «Ритма». Записи добавятся к этому журналу, совпадения будут пропущены.</p>
+        <label class="import-field">Файл CSV<input type="file" id="import-file" accept=".csv,text/csv"></label>
+        <p class="import-status" id="import-status" role="status" hidden></p>
+        <button type="button" class="primary wide" id="import-button" disabled>Импортировать записи</button>
+      </section>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Разделы приложения">
+    <div class="frame nav-inner">
+      <button type="button" data-screen="journal" aria-current="page"><span class="nav-mark"><i class="icon calendar-icon" aria-hidden="true"></i></span>Календарь</button>
+      <button type="button" data-screen="catalog"><span class="nav-mark"><i class="icon dumbbell" aria-hidden="true"></i></span>Упражнения</button>
+      <button type="button" data-screen="export"><span class="nav-mark"><i class="icon download" aria-hidden="true"></i></span>Обмен CSV</button>
+    </div>
+  </nav>
+
+  <dialog id="exercise-stats" aria-labelledby="stats-title">
+    <div class="dialog-form">
+      <div class="dialog-heading">
+        <h2 id="stats-title"></h2>
+        <button type="button" class="icon-button" id="close-stats" aria-label="Закрыть"><i class="icon cross" aria-hidden="true"></i></button>
+      </div>
+      <p id="stats-empty" class="stats-message" hidden>Записей пока нет. Добавьте упражнение в календаре, чтобы увидеть статистику.</p>
+      <div id="stats-results" class="stats-results" hidden>
+        <section class="stats-card stats-record" aria-labelledby="record-heading">
+          <h3 id="record-heading">Максимальный вес</h3>
+          <p id="record-date" class="stats-date"></p>
+          <div id="record-result"></div>
+        </section>
+        <section class="stats-card" aria-labelledby="last-heading">
+          <h3 id="last-heading">Последняя тренировка</h3>
+          <p id="last-date" class="stats-date"></p>
+          <ul id="last-results" class="stats-list"></ul>
+        </section>
+      </div>
+      <button type="button" class="text-button wide" id="edit-exercise">Редактировать упражнение</button>
+    </div>
+  </dialog>
+
+  <dialog id="muscle-groups" aria-labelledby="muscle-groups-title">
+    <div class="dialog-form">
+      <div class="dialog-heading">
+        <h2 id="muscle-groups-title">Группы мышц</h2>
+        <button type="button" class="icon-button" id="close-groups" aria-label="Закрыть"><i class="icon cross" aria-hidden="true"></i></button>
+      </div>
+      <div id="muscle-group-list" class="entry-list"></div>
+      <button type="button" class="primary wide" id="add-group"><i class="icon plus" aria-hidden="true"></i> Создать группу</button>
+    </div>
+  </dialog>
+
+  <dialog id="editor" aria-labelledby="editor-title">
+    <form id="editor-form" class="dialog-form">
+      <div class="dialog-heading">
+        <h2 id="editor-title"></h2>
+        <button type="button" class="icon-button" id="close-editor" aria-label="Закрыть"><i class="icon cross" aria-hidden="true"></i></button>
+      </div>
+      <div id="editor-fields"></div>
+      <p id="editor-error" class="error" role="alert" hidden></p>
+      <button type="submit" class="primary wide">Сохранить</button>
+      <button type="button" class="danger wide" id="delete-item" hidden>Удалить</button>
+    </form>
+  </dialog>
+
+  <dialog id="confirmation" aria-labelledby="confirmation-title">
+    <div class="dialog-form">
+      <h2 id="confirmation-title"></h2>
+      <p id="confirmation-message"></p>
+      <div class="confirm-actions">
+        <button type="button" class="text-button" id="cancel-delete">Отмена</button>
+        <button type="button" class="danger" id="confirm-delete">Удалить</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" role="status" hidden></div>
+</body>
+</html>

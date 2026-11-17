@@ -1,0 +1,15 @@
+.import-card { display: grid; gap: 12px; padding: 17px; margin-top: 16px; }
+.import-card h2 { font-size: 18px; }
+.import-card p { color: var(--muted); font-size: 13px; line-height: 1.45; }
+.import-card .import-status[data-error] { color: #a61b41; }
+.import-field input { font-size: 13px; }
+.import-field input::file-selector-button {
+  margin-inline-end: 8px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--light-purple);
+  color: var(--purple-dark);
+  font: inherit;
+  font-weight: 700;
+}
